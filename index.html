@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>INFIEL Animado</title>
+<style>
+  body {
+    margin: 0;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="200"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = 'white';
+ctx.font = 'bold 100px monospace';
+
+const text = "INFIEL";
+
+// Obtener los datos de la palabra
+const offscreen = document.createElement('canvas');
+offscreen.width = canvas.width;
+offscreen.height = canvas.height;
+const offCtx = offscreen.getContext('2d');
+
+offCtx.fillStyle = 'white';
+offCtx.font = 'bold 100px monospace';
+offCtx.fillText(text, 50, 140);
+
+const imageData = offCtx.getImageData(0,0,offscreen.width, offscreen.height).data;
+
+// Extraer todos los puntos blancos
+const points = [];
+for(let y = 0; y < offscreen.height; y+=2){
+  for(let x = 0; x < offscreen.width; x+=2){
+    const alpha = imageData[(y*offscreen.width + x)*4 + 3];
+    if(alpha > 0){
+      points.push({x, y});
+    }
+  }
+}
+
+// Animación: dibujar punto por punto
+let index = 0;
+function drawStep() {
+  for(let i=0; i<10 && index < points.length; i++, index++){
+    const p = points[index];
+    ctx.fillRect(p.x, p.y, 2, 2);
+  }
+  if(index < points.length){
+    requestAnimationFrame(drawStep);
+  }
+}
+
+drawStep();
+</script>
+</body>
+</html>
